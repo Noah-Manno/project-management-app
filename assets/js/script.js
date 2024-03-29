@@ -16,22 +16,50 @@ function readProjectsFromStorage() {
   
   // TODO: Retrieve projects from localStorage and parse the JSON to an array. If there are no projects in localStorage, initialize an empty array and return it.
 
+  let projects = JSON.parse(localStorage.getItem('projects'))
+
+  if (!projects) {
+    projects = [];
+  }
+  return projects;
 }
 
 // TODO: Create a function that accepts an array of projects, stringifys them, and saves them in localStorage.
+function saveProjectsToStorage(projects) {
+  let stringProjects = JSON.stringify(projects)
+  localStorage.setItem('projects', stringProjects);
 
+}
 
 // ? Creates a project card from the information passed in `project` parameter and returns it.
 function createProjectCard(project) {
 
   // TODO: Create a new card element and add the classes `card`, `project-card`, `draggable`, and `my-3`. Also add a `data-project-id` attribute and set it to the project id.
+    const taskCard = $('<div>')
+    .addClass('card project-card draggable my-3')
+    .attr('data-project-id', project.id)
+
   // TODO: Create a new card header element and add the classes `card-header` and `h4`. Also set the text of the card header to the project name.
+    let cardHeader = $('<div>')
+    .addClass('card-header h4')
+    .text(project.name)
   // TODO: Create a new card body element and add the class `card-body`.
+    let cardBody = $('<div>')
+    .addClass('card-body')
   // TODO: Create a new paragraph element and add the class `card-text`. Also set the text of the paragraph to the project type.
+    let paragraphEl = $('<p>')
+    .addClass('card-text')
+    .text(project.type)
   // TODO: Create a new paragraph element and add the class `card-text`. Also set the text of the paragraph to the project due date.
+    let paragraphElTwo = $('<p>')
+    .addClass('card-text')
+    .text(project.dueDate)
   // TODO: Create a new button element and add the classes `btn`, `btn-danger`, and `delete`. Also set the text of the button to "Delete" and add a `data-project-id` attribute and set it to the project id.
-
-
+    let button = $('<button>')
+    .addClass('btn btn-danger delete')
+    .text('delete')
+    .attr('data-project-id', project.id)
+    button.on('click', handleDeleteProject)
   // ? Sets the card background color based on due date. Only apply the styles if the dueDate exists and the status is not done.
   if (project.dueDate && project.status !== 'done') {
     const now = dayjs();
@@ -47,8 +75,13 @@ function createProjectCard(project) {
   }
 
   // TODO: Append the card description, card due date, and card delete button to the card body.
+  cardBody.append(paragraphEl);
+  cardBody.append(paragraphElTwo);
+  cardBody.append(button);
   // TODO: Append the card header and card body to the card.
+  taskCard.append(cardBody)
 
+  console.log(taskCard)
   // ? Return the card so it can be appended to the correct lane.
   return taskCard;
 }
@@ -68,8 +101,15 @@ function printProjectData() {
 
   // TODO: Loop through projects and create project cards for each status
   for (let project of projects) {
-    
-  }
+    const card = createProjectCard(project)
+
+    if (project.status === "to-do") {
+    todoList.append(card)}
+    if (project.status === "in-progress") {
+      inProgressList.append(card)}
+      if (project.status === "done") {
+        doneList.append(card)}
+  } 
 
   // ? Use JQuery UI to make task cards draggable
   $('.draggable').draggable({
@@ -95,6 +135,11 @@ function handleDeleteProject() {
   const projects = readProjectsFromStorage();
 
   // TODO: Loop through the projects array and remove the project with the matching id.
+  projects.forEach(project => {
+    if (project.id === projectId) {
+      projects.splice(projects.indexOf(project), 1)
+    }
+  });
 
   // ? We will use our helper function to save the projects to localStorage
   saveProjectsToStorage(projects);
@@ -109,6 +154,9 @@ function handleProjectFormSubmit(event) {
 
   // TODO: Get the project name, type, and due date from the form
 
+  const projectName = projectNameInputEl.val();
+  const projectType = projectTypeInputEl.val();
+  const projectDate = projectDateInputEl.val();
 
   // ? Create a new project object with the data from the form
   const newProject = {
